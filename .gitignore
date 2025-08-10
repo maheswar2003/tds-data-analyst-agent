@@ -57,3 +57,6 @@ htmlcov/
 *.tmp
 temp/
 tmp/
+\# Local tools/binaries
+ngrok.exe
+ngrok.zip
