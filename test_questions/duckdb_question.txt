@@ -1,0 +1,1 @@
+Can you create a sample sales dataset and analyze it using DuckDB? I'd like to see total revenue by product, transaction counts, and average prices. Please show me how to use DuckDB for data analysis.

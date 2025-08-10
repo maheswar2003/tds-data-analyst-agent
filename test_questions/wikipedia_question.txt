@@ -1,0 +1,1 @@
+What can you tell me about artificial intelligence from Wikipedia? Please fetch the summary and provide key information about AI including its definition and current applications.
