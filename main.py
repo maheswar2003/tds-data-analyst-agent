@@ -453,9 +453,21 @@ async def analyze_file_upload(request: Request):
     try:
         form = await request.form()
         files: List[Tuple[str, UploadFile]] = []
+        # Be flexible: detect uploads by duck-typing to handle client quirks
         for key, value in form.multi_items():
-            if isinstance(value, UploadFile):
-                files.append((key, value))
+            try:
+                filename = getattr(value, "filename", None)
+                read_method = getattr(value, "read", None)
+                if filename and callable(read_method):
+                    files.append((key, value))
+            except Exception:
+                continue
+        # Fallback: accept plain text field named 'questions.txt' if some client sent it as text
+        if not files and ("questions.txt" in form or "question" in form):
+            qt = str(form.get("questions.txt") or form.get("question") or "").strip()
+            if qt:
+                offline_result = _offline_analyze_router(qt)
+                return JSONResponse(content=offline_result)
         if not files:
             return JSONResponse(status_code=400, content={"error": "No files uploaded"})
 
