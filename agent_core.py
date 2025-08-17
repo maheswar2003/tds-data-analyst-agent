@@ -184,14 +184,14 @@ plt.tight_layout()
 
 # Convert to base64 (OPTIMIZED for evaluation - MUST be under 20KB)
 buf = io.BytesIO()
-plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', optimize=True, facecolor='white')
+plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', facecolor='white')
 plt.close()
 buf.seek(0)
 plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
 plot_uri = f"data:image/png;base64,{plot_base64}"
 
 # CRITICAL: Each image MUST be under 20KB for evaluation system
-# Use small figsize, low DPI (72), and optimize=True
+# Use small figsize (6x4), low DPI (72), white background for compression
 ```
 
 REQUIRED JSON OUTPUT FORMAT:
@@ -274,7 +274,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', optimize=True)
+    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight')
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
@@ -387,7 +387,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', optimize=True)
+    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight')
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
@@ -511,7 +511,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', optimize=True)
+    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight')
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
