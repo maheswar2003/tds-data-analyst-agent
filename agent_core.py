@@ -82,7 +82,7 @@ def validate_generated_code(code: str) -> bool:
     # Ensure code has print statement for JSON output
     if 'print(json.dumps(' not in code:
         logger.warning("Code missing JSON output print statement")
-                return False
+        return False
     
     return True
 
@@ -661,12 +661,12 @@ Generate the complete Python script now:"""
                 start = generated_script.find("```python") + 9
                 end = generated_script.rfind("```")
                 if end > start:
-                generated_script = generated_script[start:end].strip()
+                    generated_script = generated_script[start:end].strip()
             elif "```" in generated_script:
                 start = generated_script.find("```") + 3
                 end = generated_script.rfind("```")
                 if end > start:
-                generated_script = generated_script[start:end].strip()
+                    generated_script = generated_script[start:end].strip()
             
             # Validate if enabled
             if config.enable_code_validation:
