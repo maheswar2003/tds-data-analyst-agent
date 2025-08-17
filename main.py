@@ -21,6 +21,8 @@ import pandas as pd
 import duckdb as _duckdb
 import io
 import base64
+import tempfile
+import shutil
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -503,31 +505,74 @@ async def analyze_file_upload(request: Request):
         
         logger.info(f"Processing question from file: {question_text[:100]}...")
         
-        # Try LLM-powered path first if configured; else fallback
-        use_llm = bool(os.getenv("GOOGLE_API_KEY"))
-        if use_llm:
-            try:
-                generated_script = generate_analysis_script(question_text, agent.config)
-                logger.info("Script generation completed")
-                json_output = execute_script(generated_script, agent.config)
-                logger.info("Script execution completed")
+        # Process and save data files with standardized names for AI
+        temp_dir = tempfile.mkdtemp()
+        
+        try:
+            # Save data files with standardized names for AI compatibility
+            csv_count = 0
+            for key, file in files:
+                if file != question_file and file.filename:
+                    file_content = await file.read()
+                    filename_lower = file.filename.lower()
+                    
+                    # Determine standardized filename based on content type
+                    if filename_lower.endswith('.csv'):
+                        if 'node' in filename_lower:
+                            standard_name = 'nodes.csv'
+                        elif 'edge' in filename_lower:
+                            standard_name = 'edges.csv'
+                        elif csv_count == 0:
+                            standard_name = 'data.csv'
+                            csv_count += 1
+                        else:
+                            standard_name = f'data{csv_count}.csv'
+                            csv_count += 1
+                    elif filename_lower.endswith(('.xlsx', '.xls')):
+                        standard_name = 'data.xlsx'
+                    else:
+                        standard_name = file.filename
+                    
+                    # Save file with standardized name
+                    save_path = os.path.join(temp_dir, standard_name)
+                    with open(save_path, 'wb') as f:
+                        f.write(file_content)
+                    logger.info(f"Saved: {file.filename} -> {standard_name}")
+            
+            # Change to temp directory for script execution
+            original_cwd = os.getcwd()
+            os.chdir(temp_dir)
+            
+            # Try LLM-powered path first if configured; else fallback
+            use_llm = bool(os.getenv("GOOGLE_API_KEY"))
+            if use_llm:
                 try:
-                    parsed_result = json.loads(json_output)
-                    logger.info("JSON parsing successful")
-                    return JSONResponse(content=parsed_result)
-                except json.JSONDecodeError as json_err:
-                    logger.warning(f"JSON parsing failed: {json_err}")
-                    return JSONResponse(content={
-                        "raw_output": json_output,
-                        "error": "Output was not valid JSON",
-                        "status": "completed_with_warning"
-                    })
-            except Exception as e:
-                logger.warning(f"LLM path failed, falling back to offline analysis: {e}")
+                    generated_script = generate_analysis_script(question_text, agent.config)
+                    logger.info("Script generation completed")
+                    json_output = execute_script(generated_script, agent.config)
+                    logger.info("Script execution completed")
+                    try:
+                        parsed_result = json.loads(json_output)
+                        logger.info("JSON parsing successful")
+                        return JSONResponse(content=parsed_result)
+                    except json.JSONDecodeError as json_err:
+                        logger.warning(f"JSON parsing failed: {json_err}")
+                        return JSONResponse(content={
+                            "raw_output": json_output,
+                            "error": "Output was not valid JSON",
+                            "status": "completed_with_warning"
+                        })
+                except Exception as e:
+                    logger.warning(f"LLM path failed, falling back to offline analysis: {e}")
 
-        # Offline deterministic fallback
-        offline_result = _offline_analyze_router(question_text)
-        return JSONResponse(content=offline_result)
+            # Offline deterministic fallback
+            offline_result = _offline_analyze_router(question_text)
+            return JSONResponse(content=offline_result)
+            
+        finally:
+            # Cleanup: restore working directory and remove temp files
+            os.chdir(original_cwd)
+            shutil.rmtree(temp_dir, ignore_errors=True)
         
     except Exception as e:
         logger.error(f"Error processing file upload: {str(e)}")
