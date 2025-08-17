@@ -315,7 +315,7 @@ class DataAnalystAgent:
                 "explanation": f"Error during analysis: {str(e)}",
                 "execution_success": False,
                 "config": {
-                    "model": self.config.claude_model,
+                    "model": self.config.gemini_model,
                     "timeout": self.config.execution_timeout
                 }
             }
