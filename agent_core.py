@@ -82,7 +82,7 @@ def validate_generated_code(code: str) -> bool:
     # Ensure code has print statement for JSON output
     if 'print(json.dumps(' not in code:
         logger.warning("Code missing JSON output print statement")
-        return False
+                return False
     
     return True
 
@@ -169,7 +169,7 @@ ABSOLUTE CRITICAL REQUIREMENTS:
 CRITICAL FILE HANDLING RULE:
 If the user's question mentions an attached file (e.g., 'the attached sales_data.csv' or 'the provided weather.csv'), the generated script MUST assume that this file has been placed in the current working directory with a simple, generic name like 'data.csv'. The script should ALWAYS read the primary data file using pd.read_csv('data.csv'). For network analysis, it should read pd.read_csv('nodes.csv') and pd.read_csv('edges.csv'). Never try to read files with their original complex names - always use simplified names.
 
-VISUALIZATION REQUIREMENTS:
+VISUALIZATION REQUIREMENTS (CRITICAL - MUST BE UNDER 20KB):
 ```python
 import matplotlib
 matplotlib.use('Agg')
@@ -177,18 +177,21 @@ import matplotlib.pyplot as plt
 import io
 import base64
 
-# Create plot
-plt.figure(figsize=(10, 6))
+# Create plot with SMALL size for evaluation compatibility
+plt.figure(figsize=(6, 4))  # SMALL figure size
 # ... plotting code ...
 plt.tight_layout()
 
-# Convert to base64
+# Convert to base64 (OPTIMIZED for evaluation - MUST be under 20KB)
 buf = io.BytesIO()
-plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', optimize=True, facecolor='white')
 plt.close()
 buf.seek(0)
 plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
 plot_uri = f"data:image/png;base64,{plot_base64}"
+
+# CRITICAL: Each image MUST be under 20KB for evaluation system
+# Use small figsize, low DPI (72), and optimize=True
 ```
 
 REQUIRED JSON OUTPUT FORMAT:
@@ -242,7 +245,7 @@ try:
     monthly_sales = df.groupby('month')['sales'].sum()
     
     # Visualization
-    fig, axes = plt.subplots(2, 2, figsize=(12, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(8, 6))
     
     # Sales by product
     axes[0, 0].bar(top_products['product'], top_products['sales'])
@@ -271,7 +274,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', optimize=True)
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
@@ -350,7 +353,7 @@ try:
     })
     
     # Create comprehensive visualization
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(8, 6))
     
     # Temperature trend
     axes[0, 0].plot(df['date'], df['temperature'], color='red', linewidth=2)
@@ -384,7 +387,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', optimize=True)
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
@@ -474,7 +477,7 @@ try:
     top_destinations = df.groupby('destination')['bytes'].sum().nlargest(5)
     
     # Create visualizations
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(8, 6))
     
     # Traffic over time
     hourly_traffic = df.groupby('hour')['bytes'].sum()
@@ -508,7 +511,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', optimize=True)
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
@@ -613,7 +616,7 @@ Generate the complete Python script now:"""
                 prompt,
                 generation_config=genai.types.GenerationConfig(
                     max_output_tokens=config.max_tokens,
-                    temperature=config.temperature,
+                temperature=config.temperature,
                 )
             )
             
@@ -624,12 +627,12 @@ Generate the complete Python script now:"""
                 start = generated_script.find("```python") + 9
                 end = generated_script.rfind("```")
                 if end > start:
-                    generated_script = generated_script[start:end].strip()
+                generated_script = generated_script[start:end].strip()
             elif "```" in generated_script:
                 start = generated_script.find("```") + 3
                 end = generated_script.rfind("```")
                 if end > start:
-                    generated_script = generated_script[start:end].strip()
+                generated_script = generated_script[start:end].strip()
             
             # Validate if enabled
             if config.enable_code_validation:
