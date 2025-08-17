@@ -612,7 +612,7 @@ CRITICAL DATA ANALYSIS PATTERNS:
 8. TIME SERIES: Trends, seasonality, forecasts, anomaly detection
 
 MANDATORY SUCCESS CRITERIA:
-1. ALWAYS inspect actual columns with df.columns and df.head() FIRST
+1. ALWAYS inspect actual columns with df.columns and df.head() FIRST (but don't print them)
 2. ALWAYS generate valid, executable Python code
 3. ALWAYS include comprehensive error handling
 4. ALWAYS create professional visualizations under 20KB
@@ -620,10 +620,11 @@ MANDATORY SUCCESS CRITERIA:
 6. ALWAYS include meaningful insights
 7. ALWAYS handle edge cases gracefully
 8. NEVER assume column names - always discover them dynamically
-9. NEVER leave analysis incomplete
+9. NEVER print debugging information - only final JSON
+10. NEVER leave analysis incomplete
 
 FINAL OUTPUT RULE:
-The script's final output MUST be a single print() statement containing a valid JSON string. Do not print anything else except df.columns and df.head() for debugging. For multi-part questions, the JSON can be a list. For questions that expect a dictionary, it must be a JSON object. The JSON MUST contain the EXACT keys specified in the user's request. Adhere strictly to the format requested in the user's prompt.
+The script's final output MUST be a single print() statement containing a valid JSON string. Do not print anything else - NO debugging prints, NO status messages, NO intermediate outputs. For multi-part questions, the JSON can be a list. For questions that expect a dictionary, it must be a JSON object. The JSON MUST contain the EXACT keys specified in the user's request. Adhere strictly to the format requested in the user's prompt.
 
 Generate the PERFECT analysis script that will impress with its thoroughness and accuracy.
 """
