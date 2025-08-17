@@ -70,7 +70,7 @@ try {
 } catch {
     Write-Host "❌ File Upload Failed: $_" -ForegroundColor Red
     if ($_.Exception.Message -like "*API*key*") {
-        Write-Host "💡 Hint: Set your Anthropic API key with: `$env:ANTHROPIC_API_KEY='your-key-here'" -ForegroundColor Yellow
+        Write-Host "💡 Hint: Set your Google API key with: `$env:GOOGLE_API_KEY='your-key-here'" -ForegroundColor Yellow
     }
 }
 

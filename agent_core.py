@@ -19,13 +19,13 @@ from typing import Dict, Any, Optional
 import logging
 from dataclasses import dataclass
 
-# Import Anthropic with retry support
+# Import Google Generative AI with retry support
 try:
-    from anthropic import Anthropic
-    ANTHROPIC_AVAILABLE = True
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
 except ImportError:
-    ANTHROPIC_AVAILABLE = False
-    Anthropic = None
+    GEMINI_AVAILABLE = False
+    genai = None
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class AgentConfig:
     """Configuration for the Data Analyst Agent."""
-    claude_model: str = "claude-3-5-sonnet-20240620"
+    gemini_model: str = "gemini-1.5-pro"
     max_tokens: int = 3000
     temperature: float = 0.3
     execution_timeout: int = 150
@@ -82,7 +82,7 @@ def generate_analysis_script(
     config: Optional[AgentConfig] = None
 ) -> str:
     """
-    Generate a Python script using Anthropic Claude API with retry logic.
+    Generate a Python script using Google Gemini API with retry logic.
     
     Args:
         task_description: Natural language description of the analysis task
@@ -92,19 +92,20 @@ def generate_analysis_script(
         Generated Python script as a string
         
     Raises:
-        Exception: If Anthropic API is not available or all retries fail
+        Exception: If Google Gemini API is not available or all retries fail
     """
-    if not ANTHROPIC_AVAILABLE:
-        raise Exception("Anthropic library not installed. Please install with: pip install anthropic")
+    if not GEMINI_AVAILABLE:
+        raise Exception("Google Generative AI library not installed. Please install with: pip install google-generativeai")
     
-    api_key = os.getenv('ANTHROPIC_API_KEY')
+    api_key = os.getenv('GOOGLE_API_KEY')
     if not api_key:
-        raise Exception("ANTHROPIC_API_KEY environment variable not set")
+        raise Exception("GOOGLE_API_KEY environment variable not set")
     
     if config is None:
         config = AgentConfig()
     
-    client = Anthropic(api_key=api_key)
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(config.gemini_model)
     
     system_prompt = """
 You are an expert data analyst and Python programmer. Your task is to generate a complete, self-contained Python script that performs the requested data analysis.
@@ -143,17 +144,17 @@ Generate clean, production-ready Python code with proper error handling.
     last_error = None
     for attempt in range(config.max_retries):
         try:
-            response = client.messages.create(
-                model=config.claude_model,
-                max_tokens=config.max_tokens,
-                temperature=config.temperature,
-                system=system_prompt,
-                messages=[
-                    {"role": "user", "content": f"Create a Python script to: {task_description}"}
-                ]
+            prompt = f"{system_prompt}\n\nCreate a Python script to: {task_description}"
+            
+            response = model.generate_content(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    max_output_tokens=config.max_tokens,
+                    temperature=config.temperature,
+                )
             )
             
-            generated_script = response.content[0].text
+            generated_script = response.text
             
             # Clean up the response
             if "```python" in generated_script:
@@ -290,7 +291,7 @@ class DataAnalystAgent:
                     "explanation": "Analysis completed successfully.",
                     "execution_success": True,
                     "config": {
-                        "model": self.config.claude_model,
+                        "model": self.config.gemini_model,
                         "timeout": self.config.execution_timeout
                     }
                 }
@@ -301,7 +302,7 @@ class DataAnalystAgent:
                     "explanation": "Analysis completed but output is not valid JSON.",
                     "execution_success": True,
                     "config": {
-                        "model": self.config.claude_model,
+                        "model": self.config.gemini_model,
                         "timeout": self.config.execution_timeout
                     }
                 }
@@ -363,4 +364,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"DuckDB test failed: {e}")
     
-    print("\nReminder: Set ANTHROPIC_API_KEY environment variable to test")
+    print("\nReminder: Set GOOGLE_API_KEY environment variable to test")
