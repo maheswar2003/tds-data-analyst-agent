@@ -71,6 +71,7 @@ async def root():
         "message": "TDS Data Analyst Agent API",
         "version": "1.0.0",
         "endpoints": {
+            "/": "GET (this message) and POST (for evaluation)",
             "/api/": "POST - Upload questions.txt (+ optional attachments) (multipart/form-data)",
             "/analyze": "POST - Submit a data analysis question (JSON)",
             "/health": "GET - Check API health status"
@@ -80,6 +81,15 @@ async def root():
             "json_request": "POST to /analyze with JSON body containing 'question' field"
         }
     }
+
+
+@app.post("/")
+async def root_post_handler(request: Request):
+    """
+    Handle POST requests to the root endpoint, primarily for the evaluation system.
+    This will delegate to the file upload handler.
+    """
+    return await analyze_file_upload(request)
 
 
 @app.get("/health")
