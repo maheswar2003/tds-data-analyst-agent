@@ -82,7 +82,7 @@ def validate_generated_code(code: str) -> bool:
     # Ensure code has print statement for JSON output
     if 'print(json.dumps(' not in code:
         logger.warning("Code missing JSON output print statement")
-        return False
+                return False
     
     return True
 
@@ -169,6 +169,9 @@ ABSOLUTE CRITICAL REQUIREMENTS:
 CRITICAL FILE HANDLING RULE:
 If the user's question mentions an attached file (e.g., 'the attached sales_data.csv' or 'the provided weather.csv'), the generated script MUST assume that this file has been placed in the current working directory with a simple, generic name like 'data.csv'. The script should ALWAYS read the primary data file using pd.read_csv('data.csv'). For network analysis, it should read pd.read_csv('nodes.csv') and pd.read_csv('edges.csv'). Never try to read files with their original complex names - always use simplified names.
 
+CRITICAL DATA COLUMN HANDLING RULE:
+ALWAYS inspect the actual CSV columns first with print(df.columns) and df.head(), then adapt your analysis to use the ACTUAL column names found in the data. Never assume column names - always discover them dynamically. If you expect 'temperature' but find 'temp_c', use 'temp_c'. If you expect 'sales' but find 'revenue', use 'revenue'. The script MUST be flexible and work with whatever columns exist in the actual data file.
+
 VISUALIZATION REQUIREMENTS (CRITICAL - MUST BE UNDER 20KB):
 ```python
 import matplotlib
@@ -178,20 +181,20 @@ import io
 import base64
 
 # Create plot with SMALL size for evaluation compatibility
-plt.figure(figsize=(6, 4))  # SMALL figure size
+plt.figure(figsize=(5, 3))  # TINY figure size for evaluation
 # ... plotting code ...
 plt.tight_layout()
 
 # Convert to base64 (OPTIMIZED for evaluation - MUST be under 20KB)
 buf = io.BytesIO()
-plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', facecolor='white')
+plt.savefig(buf, format='png', dpi=50, bbox_inches='tight', facecolor='white')
 plt.close()
 buf.seek(0)
 plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
 plot_uri = f"data:image/png;base64,{plot_base64}"
 
-# CRITICAL: Each image MUST be under 20KB for evaluation system
-# Use small figsize (6x4), low DPI (72), white background for compression
+# CRITICAL: Each image MUST be under 20KB for evaluation system  
+# Use tiny figsize (5x3), very low DPI (50), white background for maximum compression
 ```
 
 REQUIRED JSON OUTPUT FORMAT:
@@ -235,20 +238,32 @@ try:
     # Read data
     df = pd.read_csv('data.csv')
     
+    # CRITICAL: Inspect actual columns first
+    print(f"Columns found: {list(df.columns)}")
+    print(f"Data sample:\n{df.head()}")
+    
     # Clean and prepare data
     df = df.dropna()
     
-    # Analysis
-    total_sales = df['sales'].sum()
-    avg_sales = df['sales'].mean()
-    top_products = df.nlargest(5, 'sales')[['product', 'sales']]
-    monthly_sales = df.groupby('month')['sales'].sum()
+    # Adapt to actual column names (flexible approach)
+    sales_col = 'sales' if 'sales' in df.columns else 'revenue' if 'revenue' in df.columns else 'amount' if 'amount' in df.columns else df.columns[1]
+    product_col = 'product' if 'product' in df.columns else 'item' if 'item' in df.columns else 'name' if 'name' in df.columns else df.columns[0]
+    time_col = 'month' if 'month' in df.columns else 'date' if 'date' in df.columns else 'period' if 'period' in df.columns else df.columns[2] if len(df.columns) > 2 else None
+    
+    # Analysis with discovered column names
+    total_sales = df[sales_col].sum()
+    avg_sales = df[sales_col].mean()
+    top_products = df.nlargest(5, sales_col)[[product_col, sales_col]]
+    if time_col:
+        monthly_sales = df.groupby(time_col)[sales_col].sum()
+    else:
+        monthly_sales = df.groupby(product_col)[sales_col].sum()
     
     # Visualization
-    fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+    fig, axes = plt.subplots(2, 2, figsize=(6, 4))
     
-    # Sales by product
-    axes[0, 0].bar(top_products['product'], top_products['sales'])
+    # Sales by product (using dynamic column names)
+    axes[0, 0].bar(top_products[product_col], top_products[sales_col])
     axes[0, 0].set_title('Top 5 Products by Sales')
     axes[0, 0].set_xlabel('Product')
     axes[0, 0].set_ylabel('Sales ($)')
@@ -260,13 +275,14 @@ try:
     axes[0, 1].set_ylabel('Sales ($)')
     
     # Distribution
-    axes[1, 0].hist(df['sales'], bins=20, edgecolor='black')
+    axes[1, 0].hist(df[sales_col], bins=20, edgecolor='black')
     axes[1, 0].set_title('Sales Distribution')
     axes[1, 0].set_xlabel('Sales Amount')
     axes[1, 0].set_ylabel('Frequency')
     
-    # Pie chart
-    category_sales = df.groupby('category')['sales'].sum()
+    # Pie chart (flexible category column)
+    category_col = 'category' if 'category' in df.columns else 'type' if 'type' in df.columns else product_col
+    category_sales = df.groupby(category_col)[sales_col].sum()
     axes[1, 1].pie(category_sales.values, labels=category_sales.index, autopct='%1.1f%%')
     axes[1, 1].set_title('Sales by Category')
     
@@ -274,7 +290,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=50, bbox_inches='tight')
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
@@ -293,8 +309,8 @@ try:
         "insights": [
             f"Total sales revenue: ${total_sales:,.2f}",
             f"Average sale amount: ${avg_sales:,.2f}",
-            f"Best performing product: {top_products.iloc[0]['product']}",
-            f"Number of unique products: {df['product'].nunique()}"
+            f"Best performing product: {top_products.iloc[0][product_col]}",
+            f"Number of unique products: {df[product_col].nunique()}"
         ],
         "metadata": {
             "rows": len(df),
@@ -332,31 +348,42 @@ import base64
 import json
 
 try:
-    # Create or read weather data
+    # Read weather data
     df = pd.read_csv('data.csv')
     
-    # Temperature analysis
-    avg_temp = df['temperature'].mean()
-    max_temp = df['temperature'].max()
-    min_temp = df['temperature'].min()
+    # CRITICAL: Inspect actual columns first
+    print(f"Columns found: {list(df.columns)}")
+    print(f"Data sample:\n{df.head()}")
+    
+    # Adapt to actual column names (flexible approach)
+    temp_col = 'temperature' if 'temperature' in df.columns else 'temp_c' if 'temp_c' in df.columns else 'temp'
+    precip_col = 'precipitation' if 'precipitation' in df.columns else 'precip_mm' if 'precip_mm' in df.columns else 'rain'
+    date_col = 'date' if 'date' in df.columns else df.columns[0]
+    
+    # Temperature analysis with discovered column names
+    avg_temp = df[temp_col].mean()
+    max_temp = df[temp_col].max()
+    min_temp = df[temp_col].min()
     temp_range = max_temp - min_temp
     
     # Find hottest and coldest days
-    hottest_day = df.loc[df['temperature'].idxmax()]
-    coldest_day = df.loc[df['temperature'].idxmin()]
+    hottest_day = df.loc[df[temp_col].idxmax()]
+    coldest_day = df.loc[df[temp_col].idxmin()]
     
-    # Calculate daily statistics
-    daily_stats = df.groupby('date').agg({
-        'temperature': ['mean', 'max', 'min'],
-        'humidity': 'mean',
-        'precipitation': 'sum'
-    })
+    # Calculate daily statistics (using discovered column names)
+    stats_dict = {temp_col: ['mean', 'max', 'min']}
+    if 'humidity' in df.columns:
+        stats_dict['humidity'] = 'mean'
+    if precip_col in df.columns:
+        stats_dict[precip_col] = 'sum'
+    
+    daily_stats = df.groupby(date_col).agg(stats_dict)
     
     # Create comprehensive visualization
-    fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+    fig, axes = plt.subplots(2, 2, figsize=(6, 4))
     
-    # Temperature trend
-    axes[0, 0].plot(df['date'], df['temperature'], color='red', linewidth=2)
+    # Temperature trend (using dynamic column names)
+    axes[0, 0].plot(df[date_col], df[temp_col], color='red', linewidth=2)
     axes[0, 0].axhline(y=avg_temp, color='blue', linestyle='--', label=f'Avg: {avg_temp:.1f}°')
     axes[0, 0].set_title('Temperature Trend')
     axes[0, 0].set_xlabel('Date')
@@ -365,20 +392,24 @@ try:
     axes[0, 0].grid(True, alpha=0.3)
     
     # Temperature distribution
-    axes[0, 1].hist(df['temperature'], bins=15, color='skyblue', edgecolor='black')
+    axes[0, 1].hist(df[temp_col], bins=15, color='skyblue', edgecolor='black')
     axes[0, 1].axvline(x=avg_temp, color='red', linestyle='--')
     axes[0, 1].set_title('Temperature Distribution')
     axes[0, 1].set_xlabel('Temperature (°C)')
     axes[0, 1].set_ylabel('Frequency')
     
-    # Humidity vs Temperature
-    axes[1, 0].scatter(df['temperature'], df['humidity'], alpha=0.6)
-    axes[1, 0].set_title('Temperature vs Humidity')
-    axes[1, 0].set_xlabel('Temperature (°C)')
-    axes[1, 0].set_ylabel('Humidity (%)')
+    # Humidity vs Temperature (if humidity exists)
+    if 'humidity' in df.columns:
+        axes[1, 0].scatter(df[temp_col], df['humidity'], alpha=0.6)
+        axes[1, 0].set_title('Temperature vs Humidity')
+        axes[1, 0].set_xlabel('Temperature (°C)')
+        axes[1, 0].set_ylabel('Humidity (%)')
+    else:
+        axes[1, 0].text(0.5, 0.5, 'No humidity data', ha='center', va='center')
+        axes[1, 0].set_title('No Humidity Data')
     
-    # Precipitation
-    axes[1, 1].bar(df['date'], df['precipitation'], color='blue', alpha=0.7)
+    # Precipitation (using dynamic column name)
+    axes[1, 1].bar(df[date_col], df[precip_col] if precip_col in df.columns else [0]*len(df), color='blue', alpha=0.7)
     axes[1, 1].set_title('Daily Precipitation')
     axes[1, 1].set_xlabel('Date')
     axes[1, 1].set_ylabel('Precipitation (mm)')
@@ -387,20 +418,23 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=50, bbox_inches='tight')
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
     
-    # Generate insights
+    # Generate insights (using dynamic column names)
     insights = [
         f"Average temperature: {avg_temp:.1f}°C",
         f"Temperature range: {temp_range:.1f}°C (from {min_temp:.1f}°C to {max_temp:.1f}°C)",
-        f"Hottest day: {hottest_day['date']} at {hottest_day['temperature']:.1f}°C",
-        f"Coldest day: {coldest_day['date']} at {coldest_day['temperature']:.1f}°C",
-        f"Average humidity: {df['humidity'].mean():.1f}%",
-        f"Total precipitation: {df['precipitation'].sum():.1f}mm"
+        f"Hottest day: {hottest_day[date_col]} at {hottest_day[temp_col]:.1f}°C",
+        f"Coldest day: {coldest_day[date_col]} at {coldest_day[temp_col]:.1f}°C"
     ]
+    
+    if 'humidity' in df.columns:
+        insights.append(f"Average humidity: {df['humidity'].mean():.1f}%")
+    if precip_col in df.columns:
+        insights.append(f"Total precipitation: {df[precip_col].sum():.1f}mm")
     
     result = {
         "summary": f"Weather Analysis: Avg temp {avg_temp:.1f}°C, Range {temp_range:.1f}°C",
@@ -409,15 +443,13 @@ try:
             "max_temperature": float(max_temp),
             "min_temperature": float(min_temp),
             "temperature_range": float(temp_range),
-            "average_humidity": float(df['humidity'].mean()),
-            "total_precipitation": float(df['precipitation'].sum()),
             "hottest_day": {
-                "date": str(hottest_day['date']),
-                "temperature": float(hottest_day['temperature'])
+                "date": str(hottest_day[date_col]),
+                "temperature": float(hottest_day[temp_col])
             },
             "coldest_day": {
-                "date": str(coldest_day['date']),
-                "temperature": float(coldest_day['temperature'])
+                "date": str(coldest_day[date_col]),
+                "temperature": float(coldest_day[temp_col])
             }
         },
         "visualizations": [f"data:image/png;base64,{plot_base64}"],
@@ -426,7 +458,7 @@ try:
             "rows": len(df),
             "columns": len(df.columns),
             "analysis_type": "weather_analysis",
-            "date_range": f"{df['date'].min()} to {df['date'].max()}"
+            "date_range": f"{df[date_col].min()} to {df[date_col].max()}"
         },
         "status": "success",
         "error": null
@@ -477,7 +509,7 @@ try:
     top_destinations = df.groupby('destination')['bytes'].sum().nlargest(5)
     
     # Create visualizations
-    fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+    fig, axes = plt.subplots(2, 2, figsize=(6, 4))
     
     # Traffic over time
     hourly_traffic = df.groupby('hour')['bytes'].sum()
@@ -511,7 +543,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=50, bbox_inches='tight')
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
@@ -580,16 +612,18 @@ CRITICAL DATA ANALYSIS PATTERNS:
 8. TIME SERIES: Trends, seasonality, forecasts, anomaly detection
 
 MANDATORY SUCCESS CRITERIA:
-1. ALWAYS generate valid, executable Python code
-2. ALWAYS include comprehensive error handling
-3. ALWAYS create professional visualizations
-4. ALWAYS output valid JSON on the last line
-5. ALWAYS include meaningful insights
-6. ALWAYS handle edge cases gracefully
-7. NEVER leave analysis incomplete
+1. ALWAYS inspect actual columns with df.columns and df.head() FIRST
+2. ALWAYS generate valid, executable Python code
+3. ALWAYS include comprehensive error handling
+4. ALWAYS create professional visualizations under 20KB
+5. ALWAYS output valid JSON on the last line with EXACT keys requested
+6. ALWAYS include meaningful insights
+7. ALWAYS handle edge cases gracefully
+8. NEVER assume column names - always discover them dynamically
+9. NEVER leave analysis incomplete
 
 FINAL OUTPUT RULE:
-The script's final output MUST be a single print() statement containing a valid JSON string. Do not print anything else. For multi-part questions, the JSON can be a list. For questions that expect a dictionary, it must be a JSON object. Adhere strictly to the format requested in the user's prompt.
+The script's final output MUST be a single print() statement containing a valid JSON string. Do not print anything else except df.columns and df.head() for debugging. For multi-part questions, the JSON can be a list. For questions that expect a dictionary, it must be a JSON object. The JSON MUST contain the EXACT keys specified in the user's request. Adhere strictly to the format requested in the user's prompt.
 
 Generate the PERFECT analysis script that will impress with its thoroughness and accuracy.
 """
@@ -627,12 +661,12 @@ Generate the complete Python script now:"""
                 start = generated_script.find("```python") + 9
                 end = generated_script.rfind("```")
                 if end > start:
-                    generated_script = generated_script[start:end].strip()
+                generated_script = generated_script[start:end].strip()
             elif "```" in generated_script:
                 start = generated_script.find("```") + 3
                 end = generated_script.rfind("```")
                 if end > start:
-                    generated_script = generated_script[start:end].strip()
+                generated_script = generated_script[start:end].strip()
             
             # Validate if enabled
             if config.enable_code_validation:
