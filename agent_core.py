@@ -314,7 +314,7 @@ class DataAnalystAgent:
                 "explanation": f"Error during analysis: {str(e)}",
                 "execution_success": False,
                 "config": {
-                    "model": self.config.openai_model,
+                    "model": self.config.claude_model,
                     "timeout": self.config.execution_timeout
                 }
             }
@@ -363,4 +363,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"DuckDB test failed: {e}")
     
-    print("\nReminder: Set OPENAI_API_KEY environment variable to test")
+    print("\nReminder: Set ANTHROPIC_API_KEY environment variable to test")
