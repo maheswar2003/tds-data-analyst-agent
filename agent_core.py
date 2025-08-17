@@ -111,7 +111,7 @@ def generate_analysis_script(
 You are an expert data analyst and Python programmer. Your task is to generate a complete, self-contained Python script that performs the requested data analysis.
 
 CRITICAL REQUIREMENTS:
-1. Import ALL necessary libraries at the top (pandas, matplotlib, seaborn, requests, duckdb, base64, io, os, json, etc.)
+1. Import ALL necessary libraries at the top (pandas, matplotlib, seaborn, requests, duckdb, base64, io, json, numpy, etc.)
 2. Handle all data fetching, cleaning, analysis, and visualization
 3. For ANY plots/visualizations:
    - Use matplotlib with 'Agg' backend: matplotlib.use('Agg')
@@ -126,18 +126,105 @@ CRITICAL REQUIREMENTS:
 8. Make the script completely self-contained - no external file dependencies
 9. DO NOT use os, subprocess, sys modules or any file I/O operations except for in-memory operations
 
-Example JSON output structure:
-{
-    "summary": "Brief description of what was analyzed",
-    "data": {...},  // Main analysis results
-    "visualizations": ["data:image/png;base64,iVBOR..."],  // Base64 encoded plots
-    "insights": ["Key insight 1", "Key insight 2"],
-    "metadata": {"rows": 100, "columns": 5},
-    "status": "success",
-    "error": null
-}
+FILE HANDLING RULES:
+- If the user mentions an attached file (e.g., 'the attached sales_data.csv', 'data.csv'), the script MUST assume that this file has been made available in the current working directory with a simple name like 'data.csv'.
+- Use standard file reading: pd.read_csv('data.csv'), pd.read_excel('data.xlsx'), etc.
+- Always include error handling for file operations
 
-Generate clean, production-ready Python code with proper error handling.
+COMPLETE EXAMPLE:
+
+USER REQUEST:
+"Analyze the attached sales_data.csv. Calculate the total revenue and the average transaction value. Plot a bar chart of sales by product category and return it as a base64 string."
+
+PERFECT SCRIPT:
+```python
+import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import io
+import base64
+import json
+import numpy as np
+
+try:
+    # Read the data file (simplified name)
+    df = pd.read_csv('data.csv')
+    
+    # Perform analysis
+    total_revenue = (df['price'] * df['quantity']).sum()
+    average_transaction = df['price'].mean()
+    
+    # Create visualization
+    plt.figure(figsize=(8, 6))
+    sales_by_category = df.groupby('category')['price'].sum()
+    sales_by_category.plot(kind='bar', color='steelblue')
+    plt.title('Sales by Product Category')
+    plt.ylabel('Total Revenue ($)')
+    plt.xlabel('Category')
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+    
+    # Encode plot to base64
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+    plt.close()
+    buf.seek(0)
+    b64_plot = base64.b64encode(buf.read()).decode('utf-8')
+    plot_uri = f"data:image/png;base64,{b64_plot}"
+    
+    # Prepare final JSON output
+    result = {
+        "summary": f"Sales analysis: total revenue ${total_revenue:,.2f}, average transaction ${average_transaction:.2f}",
+        "data": {
+            "total_revenue": float(total_revenue),
+            "average_transaction": float(average_transaction),
+            "sales_by_category": sales_by_category.to_dict()
+        },
+        "visualizations": [plot_uri],
+        "insights": [
+            f"Total revenue: ${total_revenue:,.2f}",
+            f"Average transaction: ${average_transaction:.2f}",
+            f"Number of categories: {len(sales_by_category)}"
+        ],
+        "metadata": {"rows": len(df), "columns": len(df.columns)},
+        "status": "success",
+        "error": null
+    }
+    
+    print(json.dumps(result))
+
+except Exception as e:
+    error_result = {
+        "summary": f"Analysis failed: {str(e)}",
+        "data": {},
+        "visualizations": [],
+        "insights": [],
+        "metadata": {},
+        "status": "error",
+        "error": str(e)
+    }
+    print(json.dumps(error_result))
+```
+
+ANALYSIS GUIDELINES:
+- For sales data: Calculate totals, averages, trends, and create bar/line charts
+- For weather data: Analyze temperature patterns, create time series plots, calculate statistics
+- For network data: Analyze traffic patterns, create network graphs, calculate metrics
+- For any dataset: Always include summary statistics, visualizations, and key insights
+- Always use descriptive variable names and clear comments
+- Ensure final JSON is properly formatted and contains all required fields
+- Test edge cases and handle missing data gracefully
+
+CRITICAL SUCCESS FACTORS:
+1. Read the user request carefully and address ALL parts of the question
+2. Use appropriate analysis methods for the data type
+3. Create meaningful visualizations that support the analysis
+4. Format the final JSON exactly as specified
+5. Include comprehensive error handling
+6. Test your logic before generating the final output
+
+Generate clean, production-ready Python code with proper error handling and comprehensive analysis.
 """
     
     # Retry logic
