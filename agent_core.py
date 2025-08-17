@@ -166,10 +166,8 @@ ABSOLUTE CRITICAL REQUIREMENTS:
 5. Include complete error handling
 6. Make the script 100% self-contained
 
-FILE HANDLING RULES:
-- If user mentions an attached file, assume it exists as 'data.csv' or 'data.xlsx'
-- Always use try/except when reading files
-- Handle missing columns gracefully
+CRITICAL FILE HANDLING RULE:
+If the user's question mentions an attached file (e.g., 'the attached sales_data.csv' or 'the provided weather.csv'), the generated script MUST assume that this file has been placed in the current working directory with a simple, generic name like 'data.csv'. The script should ALWAYS read the primary data file using pd.read_csv('data.csv'). For network analysis, it should read pd.read_csv('nodes.csv') and pd.read_csv('edges.csv'). Never try to read files with their original complex names - always use simplified names.
 
 VISUALIZATION REQUIREMENTS:
 ```python
@@ -586,6 +584,9 @@ MANDATORY SUCCESS CRITERIA:
 5. ALWAYS include meaningful insights
 6. ALWAYS handle edge cases gracefully
 7. NEVER leave analysis incomplete
+
+FINAL OUTPUT RULE:
+The script's final output MUST be a single print() statement containing a valid JSON string. Do not print anything else. For multi-part questions, the JSON can be a list. For questions that expect a dictionary, it must be a JSON object. Adhere strictly to the format requested in the user's prompt.
 
 Generate the PERFECT analysis script that will impress with its thoroughness and accuracy.
 """
