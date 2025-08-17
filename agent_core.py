@@ -246,9 +246,15 @@ try:
     df = df.dropna()
     
     # Adapt to actual column names (flexible approach)
-    sales_col = 'sales' if 'sales' in df.columns else 'revenue' if 'revenue' in df.columns else 'amount' if 'amount' in df.columns else df.columns[1]
-    product_col = 'product' if 'product' in df.columns else 'item' if 'item' in df.columns else 'name' if 'name' in df.columns else df.columns[0]
-    time_col = 'month' if 'month' in df.columns else 'date' if 'date' in df.columns else 'period' if 'period' in df.columns else df.columns[2] if len(df.columns) > 2 else None
+    sales_col = next((col for col in df.columns if col.lower() in ['sales', 'revenue', 'amount']), df.columns[1])
+    product_col = next((col for col in df.columns if col.lower() in ['product', 'item', 'name']), df.columns[0])
+    time_col = next((col for col in df.columns if col.lower() in ['month', 'date', 'period']), df.columns[2] if len(df.columns) > 2 else None)
+    
+    # Ensure sales column is numeric
+    df[sales_col] = pd.to_numeric(df[sales_col])
+    
+    # Calculate cumulative sales
+    df['cumulative_sales'] = df[sales_col].cumsum()
     
     # Analysis with discovered column names
     total_sales = df[sales_col].sum()
@@ -260,7 +266,7 @@ try:
         monthly_sales = df.groupby(product_col)[sales_col].sum()
     
     # Visualization
-    fig, axes = plt.subplots(2, 2, figsize=(6, 4))
+    fig, axes = plt.subplots(2, 2, figsize=(5, 3))  # Use smaller figure size
     
     # Sales by product (using dynamic column names)
     axes[0, 0].bar(top_products[product_col], top_products[sales_col])
@@ -268,11 +274,11 @@ try:
     axes[0, 0].set_xlabel('Product')
     axes[0, 0].set_ylabel('Sales ($)')
     
-    # Monthly trend
-    axes[0, 1].plot(monthly_sales.index, monthly_sales.values, marker='o')
-    axes[0, 1].set_title('Monthly Sales Trend')
+    # Cumulative sales trend
+    axes[0, 1].plot(df[time_col], df['cumulative_sales'], marker='o', color='red')
+    axes[0, 1].set_title('Cumulative Sales Trend')
     axes[0, 1].set_xlabel('Month')
-    axes[0, 1].set_ylabel('Sales ($)')
+    axes[0, 1].set_ylabel('Cumulative Sales ($)')
     
     # Distribution
     axes[1, 0].hist(df[sales_col], bins=20, edgecolor='black')
@@ -281,7 +287,7 @@ try:
     axes[1, 0].set_ylabel('Frequency')
     
     # Pie chart (flexible category column)
-    category_col = 'category' if 'category' in df.columns else 'type' if 'type' in df.columns else product_col
+    category_col = next((col for col in df.columns if col.lower() in ['category', 'type']), product_col)
     category_sales = df.groupby(category_col)[sales_col].sum()
     axes[1, 1].pie(category_sales.values, labels=category_sales.index, autopct='%1.1f%%')
     axes[1, 1].set_title('Sales by Category')
@@ -290,7 +296,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=50, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=40, bbox_inches='tight')  # Use lower DPI
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
@@ -303,6 +309,7 @@ try:
             "average_sales": float(avg_sales),
             "top_products": top_products.to_dict('records'),
             "monthly_sales": monthly_sales.to_dict(),
+            "cumulative_sales_data": monthly_sales.cumsum().to_dict(),
             "category_breakdown": category_sales.to_dict()
         },
         "visualizations": [f"data:image/png;base64,{plot_base64}"],
@@ -380,7 +387,7 @@ try:
     daily_stats = df.groupby(date_col).agg(stats_dict)
     
     # Create comprehensive visualization
-    fig, axes = plt.subplots(2, 2, figsize=(6, 4))
+    fig, axes = plt.subplots(2, 2, figsize=(5, 3))  # Use smaller figure size
     
     # Temperature trend (using dynamic column names)
     axes[0, 0].plot(df[date_col], df[temp_col], color='red', linewidth=2)
@@ -418,7 +425,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=50, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=40, bbox_inches='tight')  # Use lower DPI
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
@@ -509,7 +516,7 @@ try:
     top_destinations = df.groupby('destination')['bytes'].sum().nlargest(5)
     
     # Create visualizations
-    fig, axes = plt.subplots(2, 2, figsize=(6, 4))
+    fig, axes = plt.subplots(2, 2, figsize=(5, 3))  # Use smaller figure size
     
     # Traffic over time
     hourly_traffic = df.groupby('hour')['bytes'].sum()
@@ -543,7 +550,7 @@ try:
     
     # Convert to base64
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=50, bbox_inches='tight')
+    plt.savefig(buf, format='png', dpi=40, bbox_inches='tight')  # Use lower DPI
     plt.close()
     buf.seek(0)
     plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
