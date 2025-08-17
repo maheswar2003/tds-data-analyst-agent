@@ -81,10 +81,10 @@ def main():
     
     print("\n" + "-" * 30)
     
-    # Test file upload (this will require OpenAI API key)
-    print("🧪 Testing File Upload (requires OPENAI_API_KEY)...")
-    if not os.getenv('OPENAI_API_KEY'):
-        print("⚠️  OPENAI_API_KEY not set - file upload test will fail")
+    # Test file upload (this will require Anthropic API key)
+    print("🧪 Testing File Upload (requires ANTHROPIC_API_KEY)...")
+    if not os.getenv('ANTHROPIC_API_KEY'):
+        print("⚠️  ANTHROPIC_API_KEY not set - file upload test will fail")
     
     test_file_upload()
     

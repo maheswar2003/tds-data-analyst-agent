@@ -19,13 +19,13 @@ from typing import Dict, Any, Optional
 import logging
 from dataclasses import dataclass
 
-# Import OpenAI with retry support
+# Import Anthropic with retry support
 try:
-    from openai import OpenAI
-    OPENAI_AVAILABLE = True
+    from anthropic import Anthropic
+    ANTHROPIC_AVAILABLE = True
 except ImportError:
-    OPENAI_AVAILABLE = False
-    OpenAI = None
+    ANTHROPIC_AVAILABLE = False
+    Anthropic = None
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class AgentConfig:
     """Configuration for the Data Analyst Agent."""
-    openai_model: str = "gpt-4o"
+    claude_model: str = "claude-3-5-sonnet-20240620"
     max_tokens: int = 3000
     temperature: float = 0.3
     execution_timeout: int = 150
@@ -82,7 +82,7 @@ def generate_analysis_script(
     config: Optional[AgentConfig] = None
 ) -> str:
     """
-    Generate a Python script using OpenAI API with retry logic.
+    Generate a Python script using Anthropic Claude API with retry logic.
     
     Args:
         task_description: Natural language description of the analysis task
@@ -92,19 +92,19 @@ def generate_analysis_script(
         Generated Python script as a string
         
     Raises:
-        Exception: If OpenAI API is not available or all retries fail
+        Exception: If Anthropic API is not available or all retries fail
     """
-    if not OPENAI_AVAILABLE:
-        raise Exception("OpenAI library not installed. Please install with: pip install openai")
+    if not ANTHROPIC_AVAILABLE:
+        raise Exception("Anthropic library not installed. Please install with: pip install anthropic")
     
-    api_key = os.getenv('OPENAI_API_KEY')
+    api_key = os.getenv('ANTHROPIC_API_KEY')
     if not api_key:
-        raise Exception("OPENAI_API_KEY environment variable not set")
+        raise Exception("ANTHROPIC_API_KEY environment variable not set")
     
     if config is None:
         config = AgentConfig()
     
-    client = OpenAI(api_key=api_key)
+    client = Anthropic(api_key=api_key)
     
     system_prompt = """
 You are an expert data analyst and Python programmer. Your task is to generate a complete, self-contained Python script that performs the requested data analysis.
@@ -143,17 +143,17 @@ Generate clean, production-ready Python code with proper error handling.
     last_error = None
     for attempt in range(config.max_retries):
         try:
-            response = client.chat.completions.create(
-                model=config.openai_model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": f"Create a Python script to: {task_description}"}
-                ],
+            response = client.messages.create(
+                model=config.claude_model,
+                max_tokens=config.max_tokens,
                 temperature=config.temperature,
-                max_tokens=config.max_tokens
+                system=system_prompt,
+                messages=[
+                    {"role": "user", "content": f"Create a Python script to: {task_description}"}
+                ]
             )
             
-            generated_script = response.choices[0].message.content
+            generated_script = response.content[0].text
             
             # Clean up the response
             if "```python" in generated_script:
@@ -290,7 +290,7 @@ class DataAnalystAgent:
                     "explanation": "Analysis completed successfully.",
                     "execution_success": True,
                     "config": {
-                        "model": self.config.openai_model,
+                        "model": self.config.claude_model,
                         "timeout": self.config.execution_timeout
                     }
                 }
@@ -301,7 +301,7 @@ class DataAnalystAgent:
                     "explanation": "Analysis completed but output is not valid JSON.",
                     "execution_success": True,
                     "config": {
-                        "model": self.config.openai_model,
+                        "model": self.config.claude_model,
                         "timeout": self.config.execution_timeout
                     }
                 }

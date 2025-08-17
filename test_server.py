@@ -139,10 +139,10 @@ def main():
     # Test 3: File Upload
     print("\n📤 Testing File Upload Endpoint...")
     
-    # Check if OpenAI API key is set
-    if not os.getenv('OPENAI_API_KEY'):
-        print("⚠️  OPENAI_API_KEY not set - upload test will likely fail")
-        print("   Set it with: set OPENAI_API_KEY=your-key-here")
+    # Check if Anthropic API key is set
+    if not os.getenv('ANTHROPIC_API_KEY'):
+        print("⚠️  ANTHROPIC_API_KEY not set - upload test will likely fail")
+        print("   Set it with: set ANTHROPIC_API_KEY=your-key-here")
     
     upload_result = test_file_upload()
     
@@ -173,7 +173,7 @@ def main():
         print(f"   Error: {upload_result['error']}")
         
         if "API" in str(upload_result['error']) or "key" in str(upload_result['error']).lower():
-            print("   💡 This might be due to missing OpenAI API key")
+            print("   💡 This might be due to missing Anthropic API key")
         elif "timeout" in str(upload_result['error']).lower():
             print("   💡 The request timed out - this is normal for complex analysis")
     
@@ -188,7 +188,7 @@ def main():
     if passed == total:
         print("   🎉 All tests passed! Your API is working perfectly.")
     elif passed >= 2:
-        print("   ⚠️  Core functionality working. Check OpenAI API key for full features.")
+        print("   ⚠️  Core functionality working. Check Anthropic API key for full features.")
     else:
         print("   ❌ Multiple failures detected. Check server and configuration.")
     

@@ -431,7 +431,7 @@ def _offline_analyze_router(question_text: str) -> Dict[str, Any]:
     
     # Generic fallback
     return {
-        "summary": "Received question but OpenAI is not configured. Provide more specifics or enable OPENAI_API_KEY.",
+        "summary": "Received question but Claude is not configured. Provide more specifics or enable ANTHROPIC_API_KEY.",
         "data": {"question": question_text[:500]},
         "visualizations": [],
         "status": "no_llm_fallback"
@@ -494,7 +494,7 @@ async def analyze_file_upload(request: Request):
         logger.info(f"Processing question from file: {question_text[:100]}...")
         
         # Try LLM-powered path first if configured; else fallback
-        use_llm = bool(os.getenv("OPENAI_API_KEY"))
+        use_llm = bool(os.getenv("ANTHROPIC_API_KEY"))
         if use_llm:
             try:
                 generated_script = generate_analysis_script(question_text, agent.config)

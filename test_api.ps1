@@ -70,7 +70,7 @@ try {
 } catch {
     Write-Host "❌ File Upload Failed: $_" -ForegroundColor Red
     if ($_.Exception.Message -like "*API*key*") {
-        Write-Host "💡 Hint: Set your OpenAI API key with: `$env:OPENAI_API_KEY='your-key-here'" -ForegroundColor Yellow
+        Write-Host "💡 Hint: Set your Anthropic API key with: `$env:ANTHROPIC_API_KEY='your-key-here'" -ForegroundColor Yellow
     }
 }
 

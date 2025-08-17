@@ -5,7 +5,7 @@ An AI-powered data analysis API that can source, prepare, analyze, and visualize
 ## Features
 
 - Accepts multipart form-data POST requests with questions and optional attachments
-- Supports both LLM-powered analysis (with OpenAI API) and offline fallback handlers
+- Supports both LLM-powered analysis (with Anthropic Claude API) and offline fallback handlers
 - Can scrape web data, analyze datasets, and generate visualizations
 - Returns results in JSON format with base64-encoded plots
 - Sub-3-minute response time guarantee
@@ -49,7 +49,7 @@ pip install -r requirements.txt
 
 3. Set environment variables (optional, for LLM support):
 ```bash
-export OPENAI_API_KEY=your-api-key-here
+export ANTHROPIC_API_KEY=your-api-key-here
 ```
 
 4. Start the server:
