@@ -753,29 +753,43 @@ try:
         shortest_path_alice_eve = None
 
     # Draw network graph (labels required; clear layout)
-    plt.figure(figsize=(4, 3))
-    pos = nx.spring_layout(G, seed=42)
-    nx.draw_networkx_nodes(G, pos, node_color='#a6cee3', node_size=1000, edgecolors='#333333')
-    nx.draw_networkx_edges(G, pos, edge_color='#999999', width=1.5)
-    nx.draw_networkx_labels(G, pos, font_size=9, font_color='#111111')
+    # Use circular layout in alphabetical order for readable spacing
+    nodes_sorted = sorted(list(G.nodes()))
+    pos = nx.circular_layout(nodes_sorted)
+    plt.figure(figsize=(5, 3))
+    nx.draw_networkx_nodes(G, pos, nodelist=nodes_sorted, node_color='#a6cee3', node_size=800, edgecolors='#222222')
+    nx.draw_networkx_edges(G, pos, edgelist=list(G.edges()), edge_color='#444444', width=1.5)
+    nx.draw_networkx_labels(
+        G, pos, labels={n: n for n in nodes_sorted}, font_size=11, font_color='#111111',
+        bbox=dict(facecolor='white', edgecolor='none', alpha=0.8, pad=0.2)
+    )
     plt.axis('off')
     plt.tight_layout()
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=15, bbox_inches='tight', pad_inches=0.05, facecolor='white')
+    # Higher DPI for legible labels; will compress below 100kB if needed
+    plt.savefig(buf, format='png', dpi=60, bbox_inches='tight', pad_inches=0.05, facecolor='white')
     plt.close()
     buf.seek(0)
     network_png = buf.read()
     if len(network_png) > 100_000:
-        # Minimal fallback to ensure size
-        plt.figure(figsize=(3, 1.5))
-        nx.draw(G, pos, node_size=600)
-        plt.axis('off')
-        plt.tight_layout()
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', dpi=10, bbox_inches='tight', pad_inches=0.05, facecolor='white')
-        plt.close()
-        buf.seek(0)
-        network_png = buf.read()
+        # Compress progressively while preserving labels
+        for dpi_try in (50, 40, 30, 20):
+            plt.figure(figsize=(5, 3))
+            nx.draw_networkx_nodes(G, pos, nodelist=nodes_sorted, node_color='#a6cee3', node_size=700, edgecolors='#222222')
+            nx.draw_networkx_edges(G, pos, edgelist=list(G.edges()), edge_color='#444444', width=1.2)
+            nx.draw_networkx_labels(
+                G, pos, labels={n: n for n in nodes_sorted}, font_size=10, font_color='#111111',
+                bbox=dict(facecolor='white', edgecolor='none', alpha=0.85, pad=0.2)
+            )
+            plt.axis('off')
+            plt.tight_layout()
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png', dpi=dpi_try, bbox_inches='tight', pad_inches=0.05, facecolor='white')
+            plt.close()
+            buf.seek(0)
+            network_png = buf.read()
+            if len(network_png) <= 100_000:
+                break
     network_graph = base64.b64encode(network_png).decode('utf-8')
     try:
         network_graph = network_graph.replace('\n','').replace('\r','').replace(' ','')
