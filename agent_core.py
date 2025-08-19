@@ -428,7 +428,7 @@ try:
         plt.title('Cumulative Sales')
         plt.xlabel('Time')
         plt.ylabel('Cumulative Sales')
-    plt.tight_layout()
+        plt.tight_layout()
     except Exception as e:
         # Absolute fallback
         plt.figure(figsize=(2, 1))
@@ -469,7 +469,7 @@ try:
     
     # EXACT OUTPUT FORMAT MATCHING EVALUATION REQUIREMENTS
     result = {
-            "total_sales": float(total_sales),
+        "total_sales": float(total_sales),
         "top_region": str(top_region),
         "day_sales_correlation": float(day_sales_correlation),
         "bar_chart": bar_chart,
