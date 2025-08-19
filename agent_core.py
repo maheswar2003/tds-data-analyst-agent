@@ -79,9 +79,27 @@ def validate_generated_code(code: str) -> bool:
                 logger.warning(f"Dangerous import detected: {node.module}")
                 return False
     
-    # Ensure code has print statement for JSON output
-    if 'print(json.dumps(' not in code:
-        logger.warning("Code missing JSON output print statement")
+    # Ensure code has a print that calls some dumps function (robust via AST)
+    try:
+        has_print_dumps = False
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and node.func.id == 'print':
+                for arg in node.args:
+                    if isinstance(arg, ast.Call):
+                        # Accept json.dumps(...) or any <alias>.dumps(...), or bare dumps(...)
+                        if isinstance(arg.func, ast.Attribute) and arg.func.attr == 'dumps':
+                            has_print_dumps = True
+                            break
+                        if isinstance(arg.func, ast.Name) and arg.func.id == 'dumps':
+                            has_print_dumps = True
+                            break
+                if has_print_dumps:
+                    break
+        if not has_print_dumps:
+            logger.warning("Code missing print(...dumps(...)) JSON output")
+            return False
+    except Exception:
+        logger.warning("AST validation for print-dumps failed; rejecting code")
         return False
     
     return True
@@ -279,7 +297,7 @@ try:
             df['day_of_month'] = df[date_col].dt.day
         except:
             # If date parsing fails, extract numbers from string
-            df['day_of_month'] = df[date_col].str.extract('(\d+)').astype(float)
+            df['day_of_month'] = df[date_col].str.extract(r'(\d+)').astype(float)
     else:
         df['day_of_month'] = range(1, len(df) + 1)  # Fallback
     
