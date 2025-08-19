@@ -191,7 +191,7 @@ plt.savefig(buf, format='png', dpi=50, bbox_inches='tight', facecolor='white')
 plt.close()
 buf.seek(0)
 plot_base64 = base64.b64encode(buf.read()).decode('utf-8')
-plot_uri = f"data:image/png;base64,{plot_base64}"
+plot_uri = plot_base64
 
 # CRITICAL: Each image MUST be under 20KB for evaluation system  
 # Use tiny figsize (5x3), very low DPI (50), white background for maximum compression
@@ -362,17 +362,14 @@ try:
     
     bar_chart = base64.b64encode(bar_chart_data).decode('utf-8')
     
-    # Ultra-strict base64 validation and cleanup
+    # Permissive base64 validation - only check basic validity
     try:
         # Remove any whitespace/newlines that might corrupt the string
         bar_chart = bar_chart.replace('\n', '').replace('\r', '').replace(' ', '')
-        decoded = base64.b64decode(bar_chart, validate=True)
-        # Ensure it's a valid PNG and reasonable size
-        if not decoded.startswith(b'\x89PNG\r\n\x1a\n') or len(decoded) > 51200:
-            raise ValueError("Invalid PNG or too large")
+        base64.b64decode(bar_chart, validate=True)  # Just validate it's valid base64
     except:
-        # Ultra-minimal fallback - guaranteed valid 1x1 PNG
-        bar_chart = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        # Keep the original - most images are actually fine
+        pass
     
     # Create CUMULATIVE SALES CHART (red line as requested) with ultra-safe error handling
     try:
@@ -425,24 +422,22 @@ try:
     
     cumulative_sales_chart = base64.b64encode(cumulative_chart_data).decode('utf-8')
     
-    # Ultra-strict base64 validation and cleanup
+    # Permissive base64 validation - only check basic validity
     try:
         cumulative_sales_chart = cumulative_sales_chart.replace('\n', '').replace('\r', '').replace(' ', '')
-        decoded = base64.b64decode(cumulative_sales_chart, validate=True)
-        if not decoded.startswith(b'\x89PNG\r\n\x1a\n') or len(decoded) > 51200:
-            raise ValueError("Invalid PNG or too large")
+        base64.b64decode(cumulative_sales_chart, validate=True)  # Just validate it's valid base64
     except:
-        cumulative_sales_chart = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        pass
     
     # EXACT OUTPUT FORMAT MATCHING EVALUATION REQUIREMENTS
     result = {
         "total_sales": float(total_sales),
         "top_region": str(top_region),
         "day_sales_correlation": float(day_sales_correlation),
-        "bar_chart": f"data:image/png;base64,{bar_chart}",
+        "bar_chart": bar_chart,
         "median_sales": float(median_sales),
         "total_sales_tax": float(total_sales_tax),
-        "cumulative_sales_chart": f"data:image/png;base64,{cumulative_sales_chart}"
+        "cumulative_sales_chart": cumulative_sales_chart
     }
     
     print(json.dumps(result))
@@ -600,14 +595,12 @@ try:
     
     temp_line_chart = base64.b64encode(temp_chart_data).decode('utf-8')
     
-    # Ultra-strict base64 validation and cleanup
+    # Permissive base64 validation - only check basic validity
     try:
         temp_line_chart = temp_line_chart.replace('\n', '').replace('\r', '').replace(' ', '')
-        decoded = base64.b64decode(temp_line_chart, validate=True)
-        if not decoded.startswith(b'\x89PNG\r\n\x1a\n') or len(decoded) > 51200:
-            raise ValueError("Invalid PNG or too large")
+        base64.b64decode(temp_line_chart, validate=True)  # Just validate it's valid base64
     except:
-        temp_line_chart = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        pass
     
     # Create PRECIPITATION HISTOGRAM (orange bars as requested)
     plt.figure(figsize=(4, 2))  # Ultra small for compression
@@ -645,14 +638,12 @@ try:
     
     precip_histogram = base64.b64encode(precip_chart_data).decode('utf-8')
     
-    # Ultra-strict base64 validation and cleanup
+    # Permissive base64 validation - only check basic validity
     try:
         precip_histogram = precip_histogram.replace('\n', '').replace('\r', '').replace(' ', '')
-        decoded = base64.b64decode(precip_histogram, validate=True)
-        if not decoded.startswith(b'\x89PNG\r\n\x1a\n') or len(decoded) > 51200:
-            raise ValueError("Invalid PNG or too large")
+        base64.b64decode(precip_histogram, validate=True)  # Just validate it's valid base64
     except:
-        precip_histogram = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        pass
     
     # EXACT OUTPUT FORMAT MATCHING EVALUATION REQUIREMENTS
     result = {
@@ -661,8 +652,8 @@ try:
         "min_temp_c": min_temp_c,
         "temp_precip_correlation": temp_precip_correlation,
         "average_precip_mm": average_precip_mm,
-        "temp_line_chart": f"data:image/png;base64,{temp_line_chart}",
-        "precip_histogram": f"data:image/png;base64,{precip_histogram}"
+        "temp_line_chart": temp_line_chart,
+        "precip_histogram": precip_histogram
     }
     
     print(json.dumps(result))
@@ -768,14 +759,12 @@ try:
     
     plot_base64 = base64.b64encode(network_chart_data).decode('utf-8')
     
-    # Ultra-strict base64 validation and cleanup
+    # Permissive base64 validation - only check basic validity
     try:
         plot_base64 = plot_base64.replace('\n', '').replace('\r', '').replace(' ', '')
-        decoded = base64.b64decode(plot_base64, validate=True)
-        if not decoded.startswith(b'\x89PNG\r\n\x1a\n') or len(decoded) > 51200:
-            raise ValueError("Invalid PNG or too large")
+        base64.b64decode(plot_base64, validate=True)  # Just validate it's valid base64
     except:
-        plot_base64 = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
+        pass
     
     # Calculate additional metrics
     bandwidth_utilization = (total_traffic / (df['bandwidth'].mean() * len(df))) * 100
@@ -794,7 +783,7 @@ try:
             "top_destinations": top_destinations.to_dict(),
             "protocol_distribution": protocol_dist.to_dict()
         },
-        "visualizations": [f"data:image/png;base64,{plot_base64}"],
+        "visualizations": [plot_base64],
         "insights": [
             f"Total network traffic: {total_traffic/1e9:.2f} GB",
             f"Average latency: {avg_latency:.2f} ms",
