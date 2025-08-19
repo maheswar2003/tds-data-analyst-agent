@@ -320,16 +320,30 @@ try:
         if region_col and region_col in df.columns and len(df) > 0:
             try:
                 region_totals = df.groupby(region_col)[sales_col].sum()
-                plt.bar(region_totals.index, region_totals.values, color='blue')
+                ax = plt.gca()
+                plt.bar(region_totals.index, region_totals.values, color='#1f77b4')
                 plt.title('Sales by Region')
                 plt.xlabel('Region')
                 plt.ylabel('Total Sales')
+                plt.xticks(rotation=0)
+                ax.tick_params(axis='both', labelsize=8)
+                plt.grid(axis='y', alpha=0.2)
             except:
-                plt.bar(['Total'], [total_sales], color='blue')
+                ax = plt.gca()
+                plt.bar(['Total'], [total_sales], color='#1f77b4')
                 plt.title('Total Sales')
+                plt.xlabel('Region')
+                plt.ylabel('Total Sales')
+                ax.tick_params(axis='both', labelsize=8)
+                plt.grid(axis='y', alpha=0.2)
         else:
-            plt.bar(['Total'], [total_sales], color='blue')
+            ax = plt.gca()
+            plt.bar(['Total'], [total_sales], color='#1f77b4')
             plt.title('Total Sales')
+            plt.xlabel('Region')
+            plt.ylabel('Total Sales')
+            ax.tick_params(axis='both', labelsize=8)
+            plt.grid(axis='y', alpha=0.2)
         plt.tight_layout()
     except Exception as e:
         # Fallback: create absolute minimal chart
@@ -350,8 +364,10 @@ try:
     if len(bar_chart_data) > 15360:  # 15KB limit
         # Create minimal fallback chart
         plt.figure(figsize=(3, 1.5))
-        plt.bar([1], [total_sales], color='blue', width=0.5)
+        plt.bar([1], [total_sales], color='#1f77b4', width=0.5)
         plt.title('Sales', fontsize=8)
+        plt.xlabel('Region')
+        plt.ylabel('Total Sales')
         plt.xticks([])
         plt.tight_layout()
         buf = io.BytesIO()
