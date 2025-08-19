@@ -319,7 +319,7 @@ try:
         if region_col and region_col in df.columns:
             region_sales = df.groupby(region_col)[sales_col].sum()
             top_region = str(region_sales.idxmax())
-        else:
+    else:
             top_region = "Unknown"
     except:
         top_region = "Unknown"
@@ -331,6 +331,10 @@ try:
             day_sales_correlation = 0.0
     except:
         day_sales_correlation = 0.0
+    
+    # Initialize chart variables to prevent NameError
+    bar_chart = ""
+    cumulative_sales_chart = ""
     
     # Create BAR CHART (blue bars as requested) with ultra-safe error handling
     try:
@@ -424,7 +428,7 @@ try:
         plt.title('Cumulative Sales')
         plt.xlabel('Time')
         plt.ylabel('Cumulative Sales')
-        plt.tight_layout()
+    plt.tight_layout()
     except Exception as e:
         # Absolute fallback
         plt.figure(figsize=(2, 1))
@@ -465,7 +469,7 @@ try:
     
     # EXACT OUTPUT FORMAT MATCHING EVALUATION REQUIREMENTS
     result = {
-        "total_sales": float(total_sales),
+            "total_sales": float(total_sales),
         "top_region": str(top_region),
         "day_sales_correlation": float(day_sales_correlation),
         "bar_chart": bar_chart,
@@ -753,34 +757,40 @@ try:
         shortest_path_alice_eve = None
 
     # Draw network graph (labels required; clear layout)
-    # Use circular layout in alphabetical order for readable spacing
+    # Use circular layout for consistent positioning
     nodes_sorted = sorted(list(G.nodes()))
-    pos = nx.circular_layout(nodes_sorted)
-    plt.figure(figsize=(5, 3))
-    nx.draw_networkx_nodes(G, pos, nodelist=nodes_sorted, node_color='#a6cee3', node_size=800, edgecolors='#222222')
-    nx.draw_networkx_edges(G, pos, edgelist=list(G.edges()), edge_color='#444444', width=1.5)
-    nx.draw_networkx_labels(
-        G, pos, labels={n: n for n in nodes_sorted}, font_size=11, font_color='#111111',
-        bbox=dict(facecolor='white', edgecolor='none', alpha=0.8, pad=0.2)
-    )
+    pos = nx.circular_layout(G, scale=1.5)  # Larger scale for better spacing
+    
+    plt.figure(figsize=(6, 6))  # Square figure for circular layout
+    
+    # Draw nodes with larger size for visibility
+    nx.draw_networkx_nodes(G, pos, node_color='#a6cee3', node_size=1500, 
+                          edgecolors='#333333', linewidths=2)
+    
+    # Draw edges with good contrast
+    nx.draw_networkx_edges(G, pos, edge_color='#999999', width=2, alpha=0.7)
+    
+    # Draw labels with high contrast and clear background
+    nx.draw_networkx_labels(G, pos, font_size=14, font_weight='bold',
+                           font_color='#000000', font_family='sans-serif')
+    
     plt.axis('off')
     plt.tight_layout()
     buf = io.BytesIO()
-    # Higher DPI for legible labels; will compress below 100kB if needed
-    plt.savefig(buf, format='png', dpi=60, bbox_inches='tight', pad_inches=0.05, facecolor='white')
+    # Start with reasonable DPI
+    plt.savefig(buf, format='png', dpi=72, bbox_inches='tight', pad_inches=0.1, facecolor='white')
     plt.close()
     buf.seek(0)
     network_png = buf.read()
     if len(network_png) > 100_000:
         # Compress progressively while preserving labels
-        for dpi_try in (50, 40, 30, 20):
-            plt.figure(figsize=(5, 3))
-            nx.draw_networkx_nodes(G, pos, nodelist=nodes_sorted, node_color='#a6cee3', node_size=700, edgecolors='#222222')
-            nx.draw_networkx_edges(G, pos, edgelist=list(G.edges()), edge_color='#444444', width=1.2)
-            nx.draw_networkx_labels(
-                G, pos, labels={n: n for n in nodes_sorted}, font_size=10, font_color='#111111',
-                bbox=dict(facecolor='white', edgecolor='none', alpha=0.85, pad=0.2)
-            )
+        for dpi_try in (60, 50, 40, 30):
+            plt.figure(figsize=(5, 5))
+            nx.draw_networkx_nodes(G, pos, node_color='#a6cee3', node_size=1200, 
+                                  edgecolors='#333333', linewidths=1.5)
+            nx.draw_networkx_edges(G, pos, edge_color='#999999', width=1.5, alpha=0.7)
+            nx.draw_networkx_labels(G, pos, font_size=12, font_weight='bold',
+                                   font_color='#000000', font_family='sans-serif')
             plt.axis('off')
             plt.tight_layout()
             buf = io.BytesIO()
@@ -828,7 +838,7 @@ try:
         "degree_histogram": degree_histogram
     }
     print(json.dumps(result))
-
+    
 except Exception as e:
     error_result = {
         "edge_count": None,

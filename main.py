@@ -724,6 +724,44 @@ async def analyze_file_upload(request: Request):
                     try:
                         parsed_result = json.loads(json_output)
                         logger.info("JSON parsing successful")
+                        # Post-validate and repair for sales tasks if LLM output is incomplete/invalid
+                        try:
+                            sales_keys = {
+                                "total_sales",
+                                "top_region",
+                                "day_sales_correlation",
+                                "bar_chart",
+                                "median_sales",
+                                "total_sales_tax",
+                                "cumulative_sales_chart",
+                            }
+                            if sales_keys.issubset(set(parsed_result.keys())):
+                                needs_repair = False
+                                # Any None or wrong types → repair
+                                for k in [
+                                    "total_sales",
+                                    "day_sales_correlation",
+                                    "median_sales",
+                                    "total_sales_tax",
+                                ]:
+                                    if parsed_result.get(k) is None:
+                                        needs_repair = True
+                                if parsed_result.get("top_region") in (None, ""):
+                                    needs_repair = True
+                                # Validate base64 images
+                                import base64 as _b64
+                                for k in ["bar_chart", "cumulative_sales_chart"]:
+                                    try:
+                                        val = parsed_result.get(k) or ""
+                                        _b64.b64decode(val, validate=True)
+                                    except Exception:
+                                        needs_repair = True
+                                if needs_repair:
+                                    logger.info("LLM sales output incomplete/invalid; using offline sales repair")
+                                    repaired = _offline_handle_sales(question_text)
+                                    return JSONResponse(content=repaired)
+                        except Exception as _e:
+                            logger.warning(f"Post-validation/repair skipped: {_e}")
                         return JSONResponse(content=parsed_result)
                     except json.JSONDecodeError as json_err:
                         logger.warning(f"JSON parsing failed: {json_err}")

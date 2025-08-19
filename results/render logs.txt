@@ -1,0 +1,50 @@
+2025-08-19T08:38:13.513448578Z ==> Your service is live 🎉
+2025-08-19T08:38:13.541051975Z ==> 
+2025-08-19T08:38:13.566225723Z ==> ///////////////////////////////////////////////////////////
+2025-08-19T08:38:13.5911951Z ==> 
+2025-08-19T08:38:13.618672698Z ==> Available at your primary URL https://tds-data-analyst-agent-37cb.onrender.com
+2025-08-19T08:38:13.644986535Z ==> 
+2025-08-19T08:38:13.672417713Z ==> ///////////////////////////////////////////////////////////
+2025-08-19T08:38:14.808502942Z INFO:     35.197.97.226:0 - "GET / HTTP/1.1" 200 OK
+2025-08-19T08:38:53.376865427Z INFO:main:Received file upload: question.txt
+2025-08-19T08:38:53.376898958Z INFO:main:Processing question from file: Analyze `sample-sales.csv`.
+2025-08-19T08:38:53.376904018Z 
+2025-08-19T08:38:53.376909178Z Return a JSON object with keys:
+2025-08-19T08:38:53.376914128Z - `total_sales`: number
+2025-08-19T08:38:53.376918328Z - `top_region`:...
+2025-08-19T08:38:53.377357076Z INFO:main:Saved: sample-sales.csv -> data.csv
+2025-08-19T08:39:13.441820662Z INFO:     Shutting down
+2025-08-19T08:39:13.542302063Z INFO:     Waiting for application shutdown.
+2025-08-19T08:39:13.542399924Z INFO:     Application shutdown complete.
+2025-08-19T08:39:13.542477235Z INFO:     Finished server process [66]
+2025-08-19T08:39:16.263630224Z INFO:agent_core:Successfully generated script on attempt 1
+2025-08-19T08:39:16.263671685Z INFO:main:Script generation completed
+2025-08-19T08:39:24.572379233Z INFO:main:Script execution completed
+2025-08-19T08:39:24.572406364Z INFO:main:JSON parsing successful
+2025-08-19T08:39:24.57275065Z INFO:     34.100.231.127:0 - "POST / HTTP/1.1" 200 OK
+2025-08-19T08:39:29.219006791Z INFO:main:Received file upload: question.txt
+2025-08-19T08:39:29.219032391Z INFO:main:Processing question from file: Analyze `sample-weather.csv`.
+2025-08-19T08:39:29.219036871Z 
+2025-08-19T08:39:29.219041641Z Return a JSON object with keys:
+2025-08-19T08:39:29.219045641Z - `average_temp_c`: number
+2025-08-19T08:39:29.219049431Z - `max_pre...
+2025-08-19T08:39:29.219265135Z INFO:main:Saved: sample-weather.csv -> data.csv
+2025-08-19T08:39:45.094894417Z INFO:agent_core:Successfully generated script on attempt 1
+2025-08-19T08:39:45.094931947Z INFO:main:Script generation completed
+2025-08-19T08:39:54.878145909Z INFO:main:Script execution completed
+2025-08-19T08:39:54.878172089Z INFO:main:JSON parsing successful
+2025-08-19T08:39:54.878508085Z INFO:     34.100.231.127:0 - "POST / HTTP/1.1" 200 OK
+2025-08-19T08:40:00.096059756Z INFO:main:Received file upload: question.txt
+2025-08-19T08:40:00.096087806Z INFO:main:Processing question from file: Use the undirected network in `edges.csv`.
+2025-08-19T08:40:00.096091576Z 
+2025-08-19T08:40:00.096096186Z Return a JSON object with keys:
+2025-08-19T08:40:00.096100376Z - `edge_count`: number
+2025-08-19T08:40:00.096103776Z -...
+2025-08-19T08:40:00.09632413Z INFO:main:Saved: edges.csv -> edges.csv
+2025-08-19T08:40:21.404943617Z INFO:agent_core:Successfully generated script on attempt 1
+2025-08-19T08:40:21.405043649Z INFO:main:Script generation completed
+2025-08-19T08:40:35.067278434Z INFO:main:Script execution completed
+2025-08-19T08:40:35.067385225Z INFO:main:JSON parsing successful
+2025-08-19T08:40:35.067897955Z INFO:     34.100.231.127:0 - "POST / HTTP/1.1" 200 OK
+2025-08-19T08:43:12.639183816Z ==> Detected service running on port 10000
+2025-08-19T08:43:12.755315592Z ==> Docs on specifying a port: https://render.com/docs/web-services#port-binding

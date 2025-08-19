@@ -1,0 +1,492 @@
+{
+  "evalId": "eval-moU-2025-08-19T08:39:59",
+  "results": {
+    "version": 3,
+    "timestamp": "2025-08-19T08:39:59.828Z",
+    "prompts": [
+      {
+        "raw": "{{prompt}}",
+        "label": "{{prompt}}",
+        "id": "effa18501e44aafd9bc42a2f64ffc9b6350f94025520ca2ed382f9bdc4b6e982",
+        "provider": "exec: uv run run.py \"https://tds-data-analyst-agent-37cb.onrender.com\"",
+        "metrics": {
+          "score": 0.75,
+          "testPassCount": 0,
+          "testFailCount": 1,
+          "testErrorCount": 0,
+          "assertPassCount": 7,
+          "assertFailCount": 1,
+          "totalLatencyMs": 35392,
+          "tokenUsage": {
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "total": 0,
+            "numRequests": 1,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            },
+            "assertions": {
+              "total": 360,
+              "prompt": 306,
+              "completion": 54,
+              "cached": 0,
+              "numRequests": 0,
+              "completionDetails": {
+                "reasoning": 0,
+                "acceptedPrediction": 0,
+                "rejectedPrediction": 0
+              }
+            }
+          },
+          "namedScores": {},
+          "namedScoresCount": {},
+          "cost": 0
+        }
+      }
+    ],
+    "results": [
+      {
+        "cost": 0,
+        "error": "Score 0 below threshold 0.99",
+        "gradingResult": {
+          "pass": false,
+          "score": 0.75,
+          "reason": "Score 0 below threshold 0.99",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 360,
+            "prompt": 306,
+            "completion": 54,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "is-json",
+                "value": {
+                  "type": "object",
+                  "required": [
+                    "edge_count",
+                    "highest_degree_node",
+                    "average_degree",
+                    "density",
+                    "shortest_path_alice_eve",
+                    "network_graph",
+                    "degree_histogram"
+                  ],
+                  "properties": {
+                    "edge_count": {
+                      "type": "number"
+                    },
+                    "highest_degree_node": {
+                      "type": "string"
+                    },
+                    "average_degree": {
+                      "type": "number"
+                    },
+                    "density": {
+                      "type": "number"
+                    },
+                    "shortest_path_alice_eve": {
+                      "type": "number"
+                    },
+                    "network_graph": {
+                      "type": "string"
+                    },
+                    "degree_histogram": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "python",
+                "weight": 3,
+                "value": "if output[\"edge_count\"] == 7 :\n  return True\nreturn False\n"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "python",
+                "weight": 3,
+                "value": "if output[\"highest_degree_node\"].lower() == \"bob\" :\n  return True\nreturn False\n"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "python",
+                "weight": 3,
+                "value": "val = float(output[\"average_degree\"])\nif abs(val - 2.8) <= 0.001:\n  return True\nreturn False\n"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "python",
+                "weight": 3,
+                "value": "val = float(output[\"density\"])\nif abs(val - 0.7) <= 0.001:\n  return True\nreturn False\n"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "python",
+                "weight": 3,
+                "value": "if output[\"shortest_path_alice_eve\"] == 2:\n  return True\nreturn False\n"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "weight": 8,
+                "rubricPrompt": "[\n  {\"role\":\"system\",\"content\":\"Grade the network graph. Score 1 only if (a) nodes Alice, Bob, Carol, David, Eve are labelled; (b) edges match edges.csv; (c) layout is clear; (d) file size < 100 kB. Respond JSON {nodes:bool,edges:bool,layout:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"network_graph\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n",
+                "threshold": 0.99,
+                "value": "[\n  {\"role\":\"system\",\"content\":\"Grade the network graph. Score 1 only if (a) nodes Alice, Bob, Carol, David, Eve are labelled; (b) edges match edges.csv; (c) layout is clear; (d) file size < 100 kB. Respond JSON {nodes:bool,edges:bool,layout:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"network_graph\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n"
+              },
+              "pass": false,
+              "score": 0,
+              "reason": "Score 0 below threshold 0.99",
+              "tokensUsed": {
+                "total": 251,
+                "prompt": 218,
+                "completion": 33,
+                "cached": 0,
+                "numRequests": 0,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "weight": 8,
+                "rubricPrompt": "[\n  {\"role\":\"system\",\"content\":\"Grade the degree histogram. Score 1 only if (a) bar chart of node degree counts; (b) bars are green; (c) axes visible and labelled; (d) file size < 100 kB. Respond JSON {bars:bool,color:bool,axes:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"degree_histogram\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n",
+                "threshold": 0.99,
+                "value": "[\n  {\"role\":\"system\",\"content\":\"Grade the degree histogram. Score 1 only if (a) bar chart of node degree counts; (b) bars are green; (c) axes visible and labelled; (d) file size < 100 kB. Respond JSON {bars:bool,color:bool,axes:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"degree_histogram\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n"
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "Grading passed",
+              "tokensUsed": {
+                "total": 109,
+                "prompt": 88,
+                "completion": 21,
+                "cached": 0,
+                "numRequests": 0,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              }
+            }
+          ],
+          "assertion": null
+        },
+        "id": "1a886ffc-2721-46b5-9a7a-45bc8cd9ec47",
+        "latencyMs": 35392,
+        "namedScores": {},
+        "prompt": {
+          "raw": "",
+          "label": "{{prompt}}"
+        },
+        "promptId": "effa18501e44aafd9bc42a2f64ffc9b6350f94025520ca2ed382f9bdc4b6e982",
+        "promptIdx": 0,
+        "provider": {
+          "id": "exec: uv run run.py \"https://tds-data-analyst-agent-37cb.onrender.com\"",
+          "label": ""
+        },
+        "response": {
+          "output": {
+            "edge_count": 7,
+            "highest_degree_node": "Bob",
+            "average_degree": 2.8,
+            "density": 0.7,
+            "shortest_path_alice_eve": 2,
+            "network_graph": "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",
+            "degree_histogram": "iVBORw0KGgoAAAANSUhEUgAAADcAAAAoCAYAAABaW2IIAAAAOnRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjEwLjUsIGh0dHBzOi8vbWF0cGxvdGxpYi5vcmcvWftoOwAAAAlwSFlzAAACTwAAAk8B95E4kAAAAyFJREFUeJztmT9LK0sYh5+sSQSTWARjWJIiViKkCwes1MZW/ADpLPwONpdb+hVuYbWVglikCkIQg2AhwcpGgmhCzNnNH1ezQdTZ2xwDMSfJ5ri7ueb6wBa78+47v5eZnd8O4zFN02RCkexKtLe3RzabHRq3u7vL6ekprVaLZrOJrus8Pj5ycnLSiWk2mzw8PNBqtT6lyWPXyOXzeTweD7lcjtXVVa6urpAkiXa7zdraGmdnZ2xvb3fiisUiqVQKXdcpFAoEg0H8fj+xWAwhBH6/n5eXFxqNBjc3N6yvr7O0tDSSJu/HB6+vr9RqNSRptEEtFArIskwgEOiMyOLiIuVymWKxSDgcRlVVjo+PWVlZYXZ2llwuRyKRIB6Pc3t7i8/nwzAMDMMgkUgghEDXdRYWFri+vmZubs6yHiFE78hVq1Xq9fpIiT5SrVY5Pz9nY2Pjj3N8Fk3TeotTVRWASCRiKYkQgkqlMjBGluWRZ8JnUVW1e1oqikIqlQKsF1epVIj/HYdQn4BHKP1VIhaLfUrsn9BVXDqd7ozcSISAWZsU2Yi7c8Vlvov7qkx0cT0m7hTDLEOWZQBbbaXHCpLJJNPT05atwCoDLeOXXQC22oo9VmAVK5Zho61M9Df3XdxXRcrn8+PW4Bjeqampvo1Wl283EUJQLpcHxrzr8pZKpa6G981iJBKxvHy7SbVa5cc/P4bahd/vR4pGo53niqJgmmb3RvV9af549UvuBv00fdAlZTKZzk06nSYQCLgp01GkYDA4bg2OIXm9rv1euo60s7Mzbg2OMdkmPm4BTtJV3NHREc1mE03TxqXHVrpWk83NTWe3PC7z/5mWk8Z3cV+Vnt8TIQT1eh2AWq0GPwHjN28+/WqH/jFW40bI1Wg0LPXn8/m6T3n29/dJJpOYpsn8/HzPe5qmWTrashLndK7fns8NwjAMZmZmbIlzI9dI31wmk+Hu7m5oXDab5fn5eWDM4eHh0DNvRVFot9tD++uXy7Yz8f8iju93Dg4OMAyDcDjMxcUFy8vLRKNR3t7euLy8JBqNEgqFeHp64v7+nq2tLdv6/hf21IopkZ8OmAAAAABJRU5ErkJggg=="
+          }
+        },
+        "score": 0.75,
+        "success": false,
+        "testCase": {
+          "vars": {
+            "question": "Use the undirected network in `edges.csv`.\n\nReturn a JSON object with keys:\n- `edge_count`: number\n- `highest_degree_node`: string\n- `average_degree`: number\n- `density`: number\n- `shortest_path_alice_eve`: number\n- `network_graph`: base64 PNG string under 100kB\n- `degree_histogram`: base64 PNG string under 100kB\n\nAnswer:\n1. How many edges are in the network?\n2. Which node has the highest degree?\n3. What is the average degree of the network?\n4. What is the network density?\n5. What is the length of the shortest path between Alice and Eve?\n6. Draw the network with nodes labelled and edges shown. Encode as base64 PNG.\n7. Plot the degree distribution as a bar chart with green bars. Encode as base64 PNG."
+          },
+          "assert": [
+            {
+              "type": "is-json",
+              "value": {
+                "type": "object",
+                "required": [
+                  "edge_count",
+                  "highest_degree_node",
+                  "average_degree",
+                  "density",
+                  "shortest_path_alice_eve",
+                  "network_graph",
+                  "degree_histogram"
+                ],
+                "properties": {
+                  "edge_count": {
+                    "type": "number"
+                  },
+                  "highest_degree_node": {
+                    "type": "string"
+                  },
+                  "average_degree": {
+                    "type": "number"
+                  },
+                  "density": {
+                    "type": "number"
+                  },
+                  "shortest_path_alice_eve": {
+                    "type": "number"
+                  },
+                  "network_graph": {
+                    "type": "string"
+                  },
+                  "degree_histogram": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            {
+              "type": "python",
+              "weight": 3,
+              "value": "if output[\"edge_count\"] == 7 :\n  return True\nreturn False\n"
+            },
+            {
+              "type": "python",
+              "weight": 3,
+              "value": "if output[\"highest_degree_node\"].lower() == \"bob\" :\n  return True\nreturn False\n"
+            },
+            {
+              "type": "python",
+              "weight": 3,
+              "value": "val = float(output[\"average_degree\"])\nif abs(val - 2.8) <= 0.001:\n  return True\nreturn False\n"
+            },
+            {
+              "type": "python",
+              "weight": 3,
+              "value": "val = float(output[\"density\"])\nif abs(val - 0.7) <= 0.001:\n  return True\nreturn False\n"
+            },
+            {
+              "type": "python",
+              "weight": 3,
+              "value": "if output[\"shortest_path_alice_eve\"] == 2:\n  return True\nreturn False\n"
+            },
+            {
+              "type": "llm-rubric",
+              "weight": 8,
+              "rubricPrompt": "[\n  {\"role\":\"system\",\"content\":\"Grade the network graph. Score 1 only if (a) nodes Alice, Bob, Carol, David, Eve are labelled; (b) edges match edges.csv; (c) layout is clear; (d) file size < 100 kB. Respond JSON {nodes:bool,edges:bool,layout:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"network_graph\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n",
+              "threshold": 0.99,
+              "value": "[\n  {\"role\":\"system\",\"content\":\"Grade the network graph. Score 1 only if (a) nodes Alice, Bob, Carol, David, Eve are labelled; (b) edges match edges.csv; (c) layout is clear; (d) file size < 100 kB. Respond JSON {nodes:bool,edges:bool,layout:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"network_graph\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n"
+            },
+            {
+              "type": "llm-rubric",
+              "weight": 8,
+              "rubricPrompt": "[\n  {\"role\":\"system\",\"content\":\"Grade the degree histogram. Score 1 only if (a) bar chart of node degree counts; (b) bars are green; (c) axes visible and labelled; (d) file size < 100 kB. Respond JSON {bars:bool,color:bool,axes:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"degree_histogram\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n",
+              "threshold": 0.99,
+              "value": "[\n  {\"role\":\"system\",\"content\":\"Grade the degree histogram. Score 1 only if (a) bar chart of node degree counts; (b) bars are green; (c) axes visible and labelled; (d) file size < 100 kB. Respond JSON {bars:bool,color:bool,axes:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"degree_histogram\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n"
+            }
+          ],
+          "options": {
+            "provider": {
+              "id": "openai:gpt-4.1-nano"
+            },
+            "transform": "JSON.parse(output)"
+          },
+          "metadata": {}
+        },
+        "testIdx": 0,
+        "vars": {
+          "question": "Use the undirected network in `edges.csv`.\n\nReturn a JSON object with keys:\n- `edge_count`: number\n- `highest_degree_node`: string\n- `average_degree`: number\n- `density`: number\n- `shortest_path_alice_eve`: number\n- `network_graph`: base64 PNG string under 100kB\n- `degree_histogram`: base64 PNG string under 100kB\n\nAnswer:\n1. How many edges are in the network?\n2. Which node has the highest degree?\n3. What is the average degree of the network?\n4. What is the network density?\n5. What is the length of the shortest path between Alice and Eve?\n6. Draw the network with nodes labelled and edges shown. Encode as base64 PNG.\n7. Plot the degree distribution as a bar chart with green bars. Encode as base64 PNG."
+        },
+        "metadata": {
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 1
+      }
+    ],
+    "stats": {
+      "successes": 0,
+      "failures": 1,
+      "errors": 0,
+      "tokenUsage": {
+        "prompt": 0,
+        "completion": 0,
+        "cached": 0,
+        "total": 0,
+        "numRequests": 1,
+        "completionDetails": {
+          "reasoning": 0,
+          "acceptedPrediction": 0,
+          "rejectedPrediction": 0
+        },
+        "assertions": {
+          "total": 360,
+          "prompt": 306,
+          "completion": 54,
+          "cached": 0,
+          "numRequests": 0,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0
+          }
+        }
+      }
+    }
+  },
+  "config": {
+    "tags": {},
+    "description": "Sample evaluation – network dataset",
+    "prompts": [
+      "{{prompt}}"
+    ],
+    "providers": [
+      "exec: uv run run.py \"{{ env.PROVIDER_URL }}\""
+    ],
+    "tests": [
+      {
+        "vars": {
+          "question": "file://questions.txt"
+        },
+        "assert": [
+          {
+            "type": "is-json",
+            "value": {
+              "type": "object",
+              "required": [
+                "edge_count",
+                "highest_degree_node",
+                "average_degree",
+                "density",
+                "shortest_path_alice_eve",
+                "network_graph",
+                "degree_histogram"
+              ],
+              "properties": {
+                "edge_count": {
+                  "type": "number"
+                },
+                "highest_degree_node": {
+                  "type": "string"
+                },
+                "average_degree": {
+                  "type": "number"
+                },
+                "density": {
+                  "type": "number"
+                },
+                "shortest_path_alice_eve": {
+                  "type": "number"
+                },
+                "network_graph": {
+                  "type": "string"
+                },
+                "degree_histogram": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          {
+            "type": "python",
+            "weight": 3,
+            "value": "if output[\"edge_count\"] == 7 :\n  return True\nreturn False\n"
+          },
+          {
+            "type": "python",
+            "weight": 3,
+            "value": "if output[\"highest_degree_node\"].lower() == \"bob\" :\n  return True\nreturn False\n"
+          },
+          {
+            "type": "python",
+            "weight": 3,
+            "value": "val = float(output[\"average_degree\"])\nif abs(val - 2.8) <= 0.001:\n  return True\nreturn False\n"
+          },
+          {
+            "type": "python",
+            "weight": 3,
+            "value": "val = float(output[\"density\"])\nif abs(val - 0.7) <= 0.001:\n  return True\nreturn False\n"
+          },
+          {
+            "type": "python",
+            "weight": 3,
+            "value": "if output[\"shortest_path_alice_eve\"] == 2:\n  return True\nreturn False\n"
+          },
+          {
+            "type": "llm-rubric",
+            "weight": 8,
+            "rubricPrompt": "[\n  {\"role\":\"system\",\"content\":\"Grade the network graph. Score 1 only if (a) nodes Alice, Bob, Carol, David, Eve are labelled; (b) edges match edges.csv; (c) layout is clear; (d) file size < 100 kB. Respond JSON {nodes:bool,edges:bool,layout:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"network_graph\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n",
+            "threshold": 0.99,
+            "value": "[\n  {\"role\":\"system\",\"content\":\"Grade the network graph. Score 1 only if (a) nodes Alice, Bob, Carol, David, Eve are labelled; (b) edges match edges.csv; (c) layout is clear; (d) file size < 100 kB. Respond JSON {nodes:bool,edges:bool,layout:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"network_graph\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n"
+          },
+          {
+            "type": "llm-rubric",
+            "weight": 8,
+            "rubricPrompt": "[\n  {\"role\":\"system\",\"content\":\"Grade the degree histogram. Score 1 only if (a) bar chart of node degree counts; (b) bars are green; (c) axes visible and labelled; (d) file size < 100 kB. Respond JSON {bars:bool,color:bool,axes:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"degree_histogram\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n",
+            "threshold": 0.99,
+            "value": "[\n  {\"role\":\"system\",\"content\":\"Grade the degree histogram. Score 1 only if (a) bar chart of node degree counts; (b) bars are green; (c) axes visible and labelled; (d) file size < 100 kB. Respond JSON {bars:bool,color:bool,axes:bool,size:bool,score:number}\"},\n  {\"role\":\"user\",\"content\":[\n    {\"type\":\"image_url\",\"image_url\":{\"url\":\"data:image/png;base64,{{output[\"degree_histogram\"]}}\"}},\n    {\"type\":\"text\",\"text\":\"{{vars.question}}\"}\n  ]}\n]\n"
+          }
+        ]
+      }
+    ],
+    "scenarios": [],
+    "env": {},
+    "sharing": true,
+    "defaultTest": {
+      "options": {
+        "provider": {
+          "id": "openai:gpt-4.1-nano"
+        },
+        "transform": "JSON.parse(output)"
+      },
+      "vars": {},
+      "assert": [],
+      "metadata": {}
+    },
+    "outputPath": [
+      "evaluation_logs/23f2005607@ds.study.iitm.ac.in/19/project-data-analyst-agent-sample-network/output.json"
+    ],
+    "extensions": [],
+    "metadata": {}
+  },
+  "shareableUrl": null,
+  "metadata": {
+    "promptfooVersion": "0.117.5",
+    "nodeVersion": "v22.16.0",
+    "platform": "linux",
+    "arch": "x64",
+    "exportedAt": "2025-08-19T08:40:37.485Z",
+    "evaluationCreatedAt": "2025-08-19T08:39:59.828Z"
+  }
+}
