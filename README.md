@@ -117,6 +117,11 @@ python test_server.py
 
 MIT License - see LICENSE file for details
 
+## Result
+
+<img width="1280" height="225" alt="image" src="https://github.com/user-attachments/assets/59b23e2d-e265-434a-a48d-3ebc2ca1dfdc" />
+
+
 ## Author
 
 Created for the TDS Data Analyst Agent project
